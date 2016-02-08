@@ -15,5 +15,5 @@
   ```
   
 3. Run ```docker ps``` to verify that your container is running
-4. If it is, you should be able to browse to the Elasticsearch REST API at http://<container ip>:9200
+4. If it is, you should be able to browse to the Elasticsearch REST API at http://\<DOCKER MACHINE IP\>:9200
   
