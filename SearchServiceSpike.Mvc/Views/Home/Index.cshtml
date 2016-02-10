@@ -1,23 +1,20 @@
-﻿@using Nest
-@using WebApplication1.Controllers
+﻿@using WebApplication1.Controllers
 @model ResultModel
                 
 @{ ViewBag.Title = "Home Page"; }
 
-
-
 <div class="jumbotron">
-        <h1>Skills Search</h1>
-        <p class="lead">Search spike using Elasticsearch</p>
+    <h1>Skills Search</h1>
+    <p class="lead">Search spike using Elasticsearch</p>
         
-        @using (Html.BeginForm("GenerateData", "Home", FormMethod.Post))
-        {
-            <input type="submit" class="btn btn-primary btn-large" value="Generate Sample Data" />
-        }
-    </div>
+    @using (Html.BeginForm("GenerateData", "Home", FormMethod.Post))
+    {
+        <input type="submit" class="btn btn-primary btn-large" value="Generate Sample Data" />
+    }
+</div>
 
 <div class="row">
-    <div class="col-lg-5">
+    <div class="col-lg-8">
         @using (Html.BeginForm("Index", "Home", FormMethod.Post))
         {
             @Html.TextBox("query", Model.InputQuery, new {@class = "input-lg", @style = "width:450px; max-width: 450px"})
@@ -25,13 +22,10 @@
             <br/>
             <input type="submit" class="btn btn-primary btn-large" value="Submit &raquo;" />
         }
-        <br/>
-        <p>Wildcards [*] can be used</p>
-        <p>If no field is explicitly defined, the system will search _all automatically</p>
-        <p>Multiple field queries are combined with OR by default. You can also use AND/OR and brackets in queries</p>
+        
     </div>
-    <div class="col-lg-2">
-        <p>Available fields</p> 
+    <div class="col-lg-4">
+        <p>Available fields</p>
         <ul>
             <li>firstName:</li>
             <li>lastName:</li>
@@ -39,6 +33,15 @@
             <li>certifications:</li>
             <li>_all</li>
         </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-8">
+        <p>Wildcards [*] can be used</p>
+        <p>~ can be placed after a term to perform 'fuzzy' searches (allows typos to match)</p>
+        <p>^N (N = number) can be used to 'boost' documents that match the term in the search results</p>
+        <p>If no field is explicitly defined, the system will search _all automatically</p>
+        <p>Multiple field queries are combined with OR by default. You can also use AND/OR and brackets in queries</p>
     </div>
     <div class="col-lg-4">
         <h2>Autocomplete Demo</h2>
@@ -77,8 +80,6 @@
         }
     </div>
     <div class="col-md-4">
-
-        
         <h2>Popular Terms</h2>
         @{
             var popularSkillTerms = Model.Results.Aggs.Terms("emp_skills_agg");
@@ -107,7 +108,65 @@
                 </ul>
             }
         }
-
-        
     </div>
 </div>
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".typeahead").typeahead({
+                    highlight: true
+                },
+                {
+                    name: 'skills',
+                    displayKey: 'value',
+                    source: function(query, process) {
+                        var results = [];
+
+                        // This is going to make an HTTP post request to the controller
+                        return $.post('/Home/AutoCompleteSkills', { query: query }, function(data) {
+
+                            // Loop through and push to the array
+                            $.each(data, function(i, result) {
+                                results.push({ value: result.Name });
+                            });
+
+                            // Process the details
+                            process(results);
+                        });
+                    },
+                    templates: {
+                        empty: ['<div class="tt-empty-message">', 'No Results', '</div>'].join('\n'),
+                        header: '<h3 class="tt-tag-heading">Skills</h3>'
+                    }
+                },
+                {
+                    name: 'certifications',
+                    displayKey: 'value',
+                    source: function(query, process) {
+                        var results = [];
+
+                        // This is going to make an HTTP post request to the controller
+                        return $.post('/Home/AutoCompleteCertifications', { query: query }, function(data) {
+
+                            // Loop through and push to the array
+                            $.each(data, function(i, result) {
+                                results.push({ value: result.Name });
+                            });
+
+                            // Process the details
+                            process(results);
+                        });
+                    },
+                    templates: {
+                        empty: ['<div class="tt-empty-message">', 'No Results', '</div>'].join('\n'),
+                        header: '<h3 class="tt-tag-heading">Certifications</h3>'
+                    }
+                })
+                .on('typeahead:selected', function(eventObject, suggestionObject, suggestionDataset) {
+                    // Set the text to our selected value
+                    $("#details").text("Selected : " + suggestionObject.value);
+                });;
+        });
+</script>
+}
