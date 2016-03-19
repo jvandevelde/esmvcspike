@@ -1,0 +1,18 @@
+= Doc Title 
+:icons: font
+ifdef::env-github[]
+:note-caption: :information_source:
+:tip-caption: :bulb:
+:warning-caption: :warning:
+:important-caption: :exclamation:
+endif::[]
+
+TIP: Pro tip...
+
+NOTE: Note goes here
+
+IMPORTANT: Don't forget...
+
+WARNING: Watch out for...
+
+CAUTION: Ensure that...
