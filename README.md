@@ -1,10 +1,13 @@
 # Elasticsearch MVC Spike
 
+This is a simple repository showing how Elasticsearch can be used to implement search in a ASP.NET MVC application.
+
 ## Setup
-1. Install Docker for windows if you don't have access to Elasticsearch server
+To run the web application, you will need to have access to an Elasticsearch server. The simplest way to set one up is to use the official Docker container on your favorite OS. To get Elasticsearch running in Docker:
+1. Install the Docker Toolbox for Windows (or your own OS) 
   - Getting started with Docker for Windows - https://docs.docker.com/engine/installation/windows/
   - Download - https://www.docker.com/products/docker-toolbox
-2. Run the following command to spin up a Elasticsearch container of the ```million12/elasticsearch``` image from https://hub.docker.com/r/million12/elasticsearch/
+2. Once you have Docker installed, run the following command to start a basic, single node Elasticsearch container of the ```million12/elasticsearch``` image from https://hub.docker.com/r/million12/elasticsearch/
   
   ```
   docker run \
