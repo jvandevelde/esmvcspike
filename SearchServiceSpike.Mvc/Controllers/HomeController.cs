@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Text;
 using System.Web.Mvc;
 using Nest;
 using WebApplication1.Models;
@@ -69,8 +70,9 @@ namespace WebApplication1.Controllers
                     .QueryString(query)
                     .Highlight(h =>
                         h.OnFields(
+                        f => f.OnAll().PreTags("<b>").PostTags("</b>"),
                             f => f.OnField(ef => ef.Skills).PreTags("<mark-green>").PostTags("</mark-green>"),
-                            f => f.OnField(ef => ef.Certifications).PreTags("<mark-lyellow>").PostTags("</mark-lyellow"))
+                            f => f.OnField(ef => ef.Certifications).PreTags("<mark-lyellow>").PostTags("</mark-lyellow>"))
                             )
                     .Aggregations(a => a
                         .Terms("emp_skills_agg", t => t.Field(p => p.Skills))
@@ -85,20 +87,6 @@ namespace WebApplication1.Controllers
                 CurrentPage = page
             };
             return results;
-        }
-
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
         }
 
         public ActionResult GenerateData()
@@ -147,5 +135,7 @@ namespace WebApplication1.Controllers
 
             return Json(searchResponse.Documents, JsonRequestBehavior.AllowGet);
         }
+
+        
     }
 }

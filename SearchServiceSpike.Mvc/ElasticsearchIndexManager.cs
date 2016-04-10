@@ -4,7 +4,6 @@ using System.Linq;
 using Nest;
 using SQLite;
 using WebApplication1.App_Data.@extern.models;
-using WebApplication1.Controllers;
 using WebApplication1.Models;
 
 namespace WebApplication1

@@ -3,15 +3,7 @@
                 
 @{ ViewBag.Title = "Home Page"; }
 
-<div class="jumbotron">
-    <h1>Skills Search</h1>
-    <p class="lead">Search spike using Elasticsearch</p>
-        
-    @using (Html.BeginForm("GenerateData", "Home", FormMethod.Post))
-    {
-        <input type="submit" class="btn btn-primary btn-large" value="Generate Sample Data" />
-    }
-</div>
+<h1>Search</h1>
 
 <div class="row">
     <div class="col-lg-8">
@@ -20,7 +12,7 @@
             @Html.TextBox("query", Model.InputQuery, new {@class = "input-lg", @style = "width:450px; max-width: 450px"})
             <br/>
             <br/>
-            <input type="submit" class="btn btn-primary btn-large" value="Submit &raquo;" />
+            <input type="submit" class="btn btn-primary btn-large" value="Search &raquo;" />
         }
         
     </div>
@@ -65,19 +57,47 @@
         @Html.Raw(string.Format("(Page {0}/{1})", Model.CurrentPage, Model.TotalPages));
             
         <p>Found @Model.Results.Total documents in @Model.Results.ElapsedMilliseconds ms</p>
-            
-        @foreach (var searchHit in @Model.Results.Hits)
-        {
-            <ul>
-                <li>@string.Format("{0} {1}", searchHit.Source.FirstName, searchHit.Source.LastName)</li>
-                <ul>
-                    @foreach (var skill in searchHit.Highlights.SelectMany(higlight => higlight.Value.Highlights))
-                    {
-                        <li>@Html.Raw(string.Format("  {0}", skill))</li>
-                    }
-                </ul>
-            </ul>
-        }
+          
+        <div class="mdl-grid">
+
+
+
+            @foreach (var searchHit in @Model.Results.Hits)
+            {
+                <div class="mdl-card mdl-cell mdl-cell--6-col mdl-shadow--8dp">
+                    <div class="mdl-card__title">
+                        <div class="card__employee">
+                            <img src=@("http://www.gravatar.com/avatar/" + @searchHit.Source.Hash + "?d=identicon") alt="@searchHit.Source.FirstName" />
+                            <div class="card__employee-content">
+                                <a href="#">@string.Format("{0} {1}", searchHit.Source.FirstName, searchHit.Source.LastName)</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mdl-card__supporting-text">
+                        <ul>
+                            @{
+                                if (searchHit.Highlights.Any())
+                                {
+                                    foreach (var match in searchHit.Highlights.SelectMany(higlight => higlight.Value.Highlights))
+                                    {
+                                        <li>@Html.Raw(string.Format("{0}", match))</li>
+                                    }
+                                }
+                                // Default to just showing some skills of matching employee if not specifying a field
+                                else
+                                {
+                                    foreach (var skill in searchHit.Source.Skills.Take(5))
+                                    {
+                                        <li>@Html.Raw(string.Format("{0}", skill))</li>
+                                    }
+                                }
+}
+                        </ul>
+                    </div>
+                </div>
+                
+            }
+        </div>
     </div>
     <div class="col-md-4">
         <h2>Popular Terms</h2>

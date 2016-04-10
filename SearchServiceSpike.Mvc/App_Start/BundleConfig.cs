@@ -24,8 +24,9 @@ namespace WebApplication1
                       "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+                "~/Content/materialdesign.css",
+                "~/Content/bootstrap.css",
+                "~/Content/site.css"));
         }
     }
 }
