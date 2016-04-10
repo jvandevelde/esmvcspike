@@ -14,18 +14,13 @@ namespace WebApplication1
 
         public static void GenerateLookupDocumentLists(ElasticClient client)
         {
-            var i = 0;
-            foreach (var skill in SampleDatasets.Skills)
-            {
-                client.Index(new Skill {Id = i++, Name = skill});
-            }
-
-            i = 0;
-            foreach (var skill in SampleDatasets.Certifications)
-            {
-                client.Index(new Certification {Id = i++, Name = skill});
-            }
+            foreach (var skill in SampleDatasets.SkillsCollection)
+                client.Index(skill);
+            
+            foreach (var cert in SampleDatasets.CertificationCollection)
+                client.Index(cert);   
         }
+
 
         public static string GenerateRandomEmployeeDocuments(ElasticClient client, string namesDbPath)
         {
@@ -36,8 +31,8 @@ namespace WebApplication1
             var rng = new Random();
 
             const int numEmployeesToCreate = 300;
-            int numSkillsGenerated = 0;
-            int numCertsGenerated = 0;
+            var numSkillsGenerated = 0;
+            var numCertsGenerated = 0;
             for (var i = 0; i <= numEmployeesToCreate; i++)
             {
                 var emp = new EmployeeSkillsDocument()
@@ -45,22 +40,29 @@ namespace WebApplication1
                     Id = i,
                     FirstName = female[rng.Next(0, female.Count - 1)].name,
                     LastName = surname[rng.Next(0, surname.Count - 1)].name,
-                    Skills = new List<string>(),
-                    Certifications = new List<string>()
+                    Skills = new List<Skill>(),
+                    Certifications = new List<Certification>()
                 };
 
                 for (var j = 0; j <= 10; j++)
                 {
-                    emp.Skills.Add(SampleDatasets.Skills[rng.Next(0, SampleDatasets.Skills.Count - 1)]);
-                    numSkillsGenerated++;
+                    var candidate = SampleDatasets.SkillsCollection[rng.Next(0, SampleDatasets.SkillsCollection.Count - 1)];
+                    if (!emp.Skills.Contains(candidate))
+                    {
+                        emp.Skills.Add(candidate);
+                        numSkillsGenerated++;
+                    }
                 }
 
                 var numCerts = rng.Next(1, 10);
                 for (var k = 0; k <= numCerts; k++)
                 {
-                    emp.Certifications.Add(
-                        SampleDatasets.Certifications[rng.Next(0, SampleDatasets.Certifications.Count - 1)]);
-                    numCertsGenerated++;
+                    var candidate = SampleDatasets.CertificationCollection[rng.Next(0, SampleDatasets.CertificationCollection.Count - 1)];
+                    if (!emp.Certifications.Contains(candidate))
+                    {
+                        emp.Certifications.Add(candidate);
+                        numCertsGenerated++;    
+                    }
                 }
 
                 client.Index(emp);

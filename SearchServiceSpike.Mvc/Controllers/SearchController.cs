@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Configuration;
-using System.Text;
+using System.Linq;
 using System.Web.Mvc;
+using Elasticsearch.Net;
 using Nest;
 using WebApplication1.Models;
 
@@ -24,27 +25,28 @@ namespace WebApplication1.Controllers
 
         public long TotalPages
         {
-            get { return Results.Total/25; }
+            get { return Results.Total / 25; }
         }
 
         public ISearchResponse<EmployeeSkillsDocument> Results { get; set; }
         public string InputQuery { get; set; }
     }
-    
-    public class HomeController : Controller
+
+    public class SearchController : Controller
     {
         private const string DefaultEsEndpoint = "http://192.168.99.100:9200";
         private const string EsIndexName = "skills-spike";
         private const int PageSize = 25;
         private readonly ElasticClient _client;
 
-        public HomeController()
+        public SearchController()
         {
             var esEndpoint = ConfigurationManager.AppSettings["Elasticsearch.Server.Endpoint"]
                 ?? DefaultEsEndpoint;
 
             var settings = new ConnectionSettings(new Uri(esEndpoint), EsIndexName)
-                .EnableTrace(true).ExposeRawResponse(true); ;
+                .EnableTrace()
+                .ExposeRawResponse();
             _client = new ElasticClient(settings);
         }
         
@@ -67,16 +69,23 @@ namespace WebApplication1.Controllers
                 d => d
                     .From(PageSize * page)
                     .Take(PageSize)
+                    // Query string is being used to demo what can be done in ES easily.
+                    // This is considered the 'Lite' version of search, but does not expose all the search
+                    // capabilities of the system
+                    // See https://www.elastic.co/guide/en/elasticsearch/guide/current/search-lite.html 
+                    // vs https://www.elastic.co/guide/en/elasticsearch/guide/current/query-dsl-intro.html
+                    // for more details
                     .QueryString(query)
+                    .DefaultOperator(DefaultOperator.And)
                     .Highlight(h =>
                         h.OnFields(
                         f => f.OnAll().PreTags("<b>").PostTags("</b>"),
-                            f => f.OnField(ef => ef.Skills).PreTags("<mark-green>").PostTags("</mark-green>"),
-                            f => f.OnField(ef => ef.Certifications).PreTags("<mark-lyellow>").PostTags("</mark-lyellow>"))
+                            f => f.OnField(ef => ef.Skills.First().Name).PreTags("<mark-green>").PostTags("</mark-green>"),
+                            f => f.OnField(ef => ef.Certifications.First().Name).PreTags("<mark-lyellow>").PostTags("</mark-lyellow>"))
                             )
                     .Aggregations(a => a
-                        .Terms("emp_skills_agg", t => t.Field(p => p.Skills))
-                        .Terms("emp_cert_agg", t => t.Field(p => p.Certifications))
+                        .Terms("emp_skills_agg", t => t.Field(p => p.Skills.First().Name))
+                        .Terms("emp_cert_agg", t => t.Field(p => p.Certifications.First().Name))
                     )
                 );
 
@@ -115,27 +124,5 @@ namespace WebApplication1.Controllers
             var results = Search(query, page);
             return View("Index", results);
         }
-
-        public JsonResult AutoCompleteSkills(string query)
-        {
-            var searchResponse = _client.Search<Skill>(s => s
-                 .Query(q => q
-                     .Prefix("name.autocomplete", query.ToLower()))
-                 .SortAscending(sort => sort.Name.Suffix("sortable")));
-            
-            return Json(searchResponse.Documents, JsonRequestBehavior.AllowGet);
-        }
-
-        public JsonResult AutoCompleteCertifications(string query)
-        {
-            var searchResponse = _client.Search<Certification>(s => s
-                 .Query(q => q
-                     .Prefix("name.autocomplete", query.ToLower()))
-                 .SortAscending(sort => sort.Name.Suffix("sortable")));
-
-            return Json(searchResponse.Documents, JsonRequestBehavior.AllowGet);
-        }
-
-        
     }
 }

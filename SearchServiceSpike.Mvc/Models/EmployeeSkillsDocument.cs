@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Nest;
 
 namespace WebApplication1.Models
 {
@@ -14,8 +15,12 @@ namespace WebApplication1.Models
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public List<string> Skills { get; set; }
-        public List<string> Certifications { get; set; }
+        
+        [ElasticProperty(Type = FieldType.Nested)]
+        public List<Skill> Skills { get; set; }
+        
+        [ElasticProperty(Type = FieldType.Nested)]
+        public List<Certification> Certifications { get; set; }
 
         public static string CreateMD5(string input)
         {

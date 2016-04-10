@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using WebApplication1.Models;
 
 namespace WebApplication1
 {
@@ -89,6 +91,35 @@ namespace WebApplication1
         public static List<string> Certifications
         {
             get { return _certs.ToList(); }
+        }
+
+        public static List<Skill> SkillsCollection
+        {
+            get
+            {
+                var rng = new Random();
+                var i = 0;
+                return _skills.Select(s =>
+                {
+                    var skill = new Skill {Id = i++, Name = s, YearsOfExperience = rng.Next(1, 12)};
+                    return skill;
+                }).ToList();
+            }
+        }
+
+        public static List<Certification> CertificationCollection
+        {
+            get
+            {
+                var rng = new Random();
+                var i = 0;
+                return _certs.Select(c =>
+                {
+                    var dateAchieved = new DateTime(rng.Next(2000, 2016), rng.Next(1, 12), rng.Next(1, 28));
+                    var skill = new Certification {Id = i++, Name = c, DateAchieved = dateAchieved};
+                    return skill;
+                }).ToList();
+            }
         }
     }
 }

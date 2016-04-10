@@ -19,3 +19,32 @@
         border-radius: 50%;
         margin-right: 0.6em;
     }
+
+    .card_employee-skillblock, .card_employee-certblock
+        span.name {
+            font-weight: normal;
+        }
+        span.length {
+            font-weight: bold;
+            font-style: italic;
+            margin-left: 10px;
+        }
+
+    .card_employee-certblock
+        span.length {
+        display: block;
+    }
+    
+    .addFieldsContainer {
+        clear: both;
+        margin: 10px;
+    }
+
+    .addfield {
+        border-color: saddlebrown;
+        border-width: 1px;
+        border-style: solid;
+        padding: 3px;
+        margin: 10px 3px;
+        cursor: pointer;
+    }
